@@ -1,0 +1,6 @@
+# 服务器上跑的脚本和单元文件必须是 LF，不然 Linux 里会报怪错
+*.sh text eol=lf
+*.service text eol=lf
+*.py text eol=lf
+# Windows 批处理必须是 CRLF
+*.bat text eol=crlf

@@ -1,0 +1,68 @@
+/* 排版（两套外观通用）：只管尺寸和摆放，颜色、字体、边框都留给 skin-*.css。
+   目标：在掌机窗口（约 440×800）里一屏放下，不用滚动；屏幕区吃掉多出来的高度。 */
+
+html,body{height:100%}
+body{padding:8px !important;align-items:stretch}
+.unit{
+  min-height:calc(100vh - 16px);display:flex;flex-direction:column;
+  padding:10px 12px 12px !important;
+}
+
+/* 眉条：只剩名字和一个外观键 */
+.topbar{padding:0 4px 8px !important}
+
+/* 屏幕：竖着排，事件流吃剩下的高度 */
+.screenbox{flex:1 1 auto;display:flex;min-height:230px;padding:8px !important}
+.screen{flex:1;display:flex;flex-direction:column;min-height:0 !important;padding:9px 10px !important}
+.srow.head{flex:none;margin-bottom:4px !important;padding-bottom:3px !important}
+#chList{flex:none;margin-bottom:6px !important}
+.chrow{margin-bottom:3px !important}
+.cells{height:12px !important}
+#feed{flex:1 1 0;min-height:48px;height:auto !important;overflow-y:auto}
+#feed:empty::before{content:"等手机来调……";color:var(--scr-dim);font-size:var(--fs-lbl)}
+#feedHint{font-size:10px}
+
+/* 状态灯条 + 一句诊断 */
+.statusbar{flex:none;display:flex;gap:6px;flex-wrap:wrap;margin-bottom:5px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--scr-dim);
+  border:2px solid var(--scr-dim);padding:2px 7px 2px 5px;line-height:1.3;max-width:100%;
+  border-radius:calc(var(--rad) / 2)}
+.pill b{font-weight:normal}
+.pill i{width:9px;height:9px;flex:none;background:var(--cell-off);border:2px solid var(--scr-dim);border-radius:50%}
+.pill.on{color:var(--scr-ink);border-color:var(--scr-ink)}
+.pill.on i{background:var(--go);border-color:var(--scr-ink);box-shadow:0 0 6px var(--go)}
+.diag{flex:none;font-size:11.5px;color:var(--stop-lo);margin-bottom:7px;line-height:1.4;min-height:16px}
+.diag.ok{color:var(--scr-ink)}
+
+/* 按键区：更紧凑，值和秒并排 */
+.pad{flex:none;margin-top:10px !important}
+.pad .grid2,.pad .grid4{margin-top:7px}
+.pad .grid4:first-child{margin-top:0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.duo .slab{margin-top:0 !important;padding:6px 6px !important;gap:4px !important}
+.duo .step{width:34px !important;height:36px !important;font-size:18px !important}
+.duo .slabval{font-size:calc(var(--fs-val) - 4px) !important}
+.duo .slablbl{font-size:10.5px !important;white-space:nowrap}
+.key{padding:10px 4px !important}
+.key.sm{padding:8px 2px !important}
+.quick{margin-top:7px}
+
+/* 更多：折叠，平时只露一行 */
+.more{flex:none;margin-top:10px;font-size:11px;color:var(--ink-soft)}
+.more summary{cursor:pointer;list-style:none;padding:4px 2px;text-align:center;letter-spacing:1px}
+.more summary::-webkit-details-marker{display:none}
+.more summary::before{content:"▾ "}
+.more[open] summary::before{content:"▴ "}
+.more .grid2{margin-top:6px}
+.more .wakenote{margin-top:6px}
+.more .lamp{width:10px;height:10px;border:2px solid var(--ink);background:var(--scr-dim);display:inline-block;vertical-align:middle}
+.more .lamp.on{background:var(--go)}
+.more .footrow{margin-top:6px;display:flex;justify-content:space-between;gap:8px}
+.more code{background:var(--shell-hi);padding:1px 5px;border:1px solid var(--ink-soft);font-family:inherit}
+
+/* 高度很矮的窗口：把能省的都省掉 */
+@media (max-height:700px){
+  .screenbox{min-height:180px}
+  .chrow{margin-bottom:2px !important}
+  .key{padding:8px 4px !important}
+}

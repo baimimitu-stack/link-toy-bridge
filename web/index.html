@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LINK-8800</title>
+<link id="skinLink" rel="stylesheet" href="s/skin-pixel.css">
+<link rel="stylesheet" href="s/layout.css">
+</head>
+<body>
+<div class="unit">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="mark" id="mark">▚</span>
+      <span class="t1">LINK-8800</span>
+      <span class="t2">CHANNEL UNIT</span>
+    </div>
+    <button class="skinbtn" id="btnSkin" title="换外观">外观</button>
+  </header>
+
+  <div class="screenbox">
+    <div class="screen">
+      <div class="statusbar">
+        <span class="pill" id="pBridge" title="本机的桥"><i></i>桥</span>
+        <span class="pill" id="pIntiface" title="Intiface Central"><i></i>Intiface</span>
+        <span class="pill" id="pToy" title="玩具"><i></i><b id="toyName">玩具</b></span>
+        <span class="pill" id="pServer" title="服务器中继"><i></i>服务器</span>
+      </div>
+      <div class="diag" id="diag">--</div>
+
+      <div class="srow head">
+        <span>CHANNELS</span>
+        <span id="chCount">--</span>
+      </div>
+      <div id="chList"></div>
+
+      <div class="srow head">
+        <span>FEED</span>
+        <span id="feedHint"></span>
+      </div>
+      <div id="feed"></div>
+    </div>
+  </div>
+
+  <div class="pad">
+    <div class="grid4" id="chPad">
+      <button class="key" data-ch="1">CH1</button>
+      <button class="key" data-ch="2">CH2</button>
+      <button class="key" data-ch="3">CH3</button>
+      <button class="key" data-ch="4">CH4</button>
+    </div>
+
+    <div class="duo">
+      <div class="slab">
+        <button class="step" id="vDown">−</button>
+        <div class="slabmid">
+          <span class="slablbl">值 VAL</span>
+          <span class="slabval" id="vVal">50</span>
+        </div>
+        <button class="step" id="vUp">+</button>
+      </div>
+      <div class="slab">
+        <button class="step" id="sDown">−</button>
+        <div class="slabmid">
+          <span class="slablbl">秒 SEC <em>0=常驻</em></span>
+          <span class="slabval" id="sVal">5</span>
+        </div>
+        <button class="step" id="sUp">+</button>
+      </div>
+    </div>
+
+    <div class="grid4 quick">
+      <button class="key sm" data-v="25">25</button>
+      <button class="key sm" data-v="50">50</button>
+      <button class="key sm" data-v="75">75</button>
+      <button class="key sm" data-v="100">100</button>
+    </div>
+
+    <div class="grid2">
+      <button class="key go" id="btnSend">发送 SEND</button>
+      <button class="key stop" id="btnStop">归零 STOP</button>
+    </div>
+
+    <div class="grid2">
+      <button class="key" id="btnScan">扫通道</button>
+      <button class="key" id="btnStatus">查状态</button>
+    </div>
+  </div>
+
+  <details class="more">
+    <summary>更多</summary>
+    <div class="grid2">
+      <button class="key wake" id="btnWake">保持唤醒：关</button>
+      <button class="key" id="btnRefresh">刷新</button>
+    </div>
+    <div class="wakenote"><span class="lamp" id="lampWake"></span> <span id="wakeNote">未开</span></div>
+    <div class="footrow"><span>现在</span><code id="clock">--:--:--</code></div>
+    <div id="keyRow" style="display:none;margin-top:8px">
+      <input type="text" id="keyIn" placeholder="钥匙 MEDIATOR_TOKEN" autocomplete="off">
+      <button class="key" id="btnKey" style="width:100%;margin-top:6px">存钥匙</button>
+    </div>
+    <div class="footrow" id="keyStat" style="display:none"><span>钥匙</span><code id="keyStateTxt">--</code></div>
+    <div id="qrBox" style="display:none;margin-top:8px;text-align:center">
+      <div style="font-size:11px;opacity:.7;margin-bottom:4px">带钥匙的链接（只在本机生成，不发给任何第三方）</div>
+      <div style="margin-top:4px"><code id="keyUrl" style="font-size:10px;word-break:break-all"></code></div>
+      <button class="key" id="btnCopyUrl" style="width:100%;margin-top:6px">复制这条链接</button>
+    </div>
+  </details>
+</div>
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const SKINS = ['pixel','cute'];
+let CH=1, VAL=50, SEC=5, SEQN=0;
+/* 钥匙：优先认网址上带的 ?k=，其次才用本地存的。只有中介设了钥匙才会用到，一个人用通常是空的 */
+const PAGE_BASE = location.origin + location.pathname.replace(/[^\/]*$/, '');  // 当前页所在的目录，以 / 结尾
+const _q = new URLSearchParams(location.search);
+let KEY = (_q.get('k') || _q.get('key') || '').trim();
+if(KEY){ try{ localStorage.setItem('m8key', KEY); }catch(e){} }
+else { try{ KEY = localStorage.getItem('m8key') || ''; }catch(e){ KEY=''; } }
+let SKIN = localStorage.getItem('m8skin') || 'pixel';
+let KEY_BAD = false;
+
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+let bars = {};
+let WAKE = {on:false, ok:false, why:''};
+let FLAGS = {video:false, wakelock:false};
+
+function applySkin(name){
+  SKIN = name; localStorage.setItem('m8skin', name);
+  $('#skinLink').href = 's/skin-' + name + '.css';
+  $('#mark').textContent = name === 'cute' ? '✿' : '▚';
+}
+$('#btnSkin').onclick = ()=> applySkin(SKINS[(SKINS.indexOf(SKIN)+1) % SKINS.length]);
+applySkin(SKIN);
+
+function toast(m){
+  const t=$('#toast'); t.textContent=m; t.style.display='block';
+  clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2800);
+}
+const esc = s => String(s).replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+
+function hdr(){
+  const h={'Content-Type':'application/json'};
+  if(KEY) h['Authorization']='Bearer '+KEY;
+  return h;
+}
+async function api(path, opts){
+  try{
+    // 相对路径：直接开（/）和走房间（/r/<码>/）都能用
+    const r=await fetch(path.replace(/^\//,''), Object.assign({headers:hdr()}, opts||{}));
+    if(r.status===401){
+      KEY_BAD = true; showKeyStat();
+      toast(KEY ? '钥匙不对，重新填（在「更多」里）' : '要钥匙：在「更多」里填');
+      throw new Error('401');
+    }
+    if(KEY_BAD){ KEY_BAD=false; showKeyStat(); }
+    return await r.json();
+  }catch(e){ if(e.message!=='401') toast('连不上中介'); throw e; }
+}
+
+/* ── 通道条：用真色块，不靠字符 ── */
+function chHtml(chs){
+  let h='';
+  for(let i=1;i<=4;i++){
+    const st=chs[i]||{}, v=Math.round(st.val||0);
+    const left = st.until ? Math.max(0, st.until - Date.now()/1000) : null;
+    const filled = Math.round(v/10);
+    let cells='';
+    for(let k=0;k<10;k++) cells += '<i class="cell'+(k<filled?' on':'')+'"></i>';
+    h += '<div class="chrow'+(i===CH?' sel':'')+'">'
+      + '<span class="chname">CH'+i+'</span>'
+      + '<span class="cells">'+cells+'</span>'
+      + '<span class="chval">'+String(v).padStart(3,' ')+(left?'<em>'+left.toFixed(0)+'s</em>':'')+'</span>'
+      + '</div>';
+  }
+  return h;
+}
+
+/* 一条记录的"做了什么"：面板按的、角色用数据串发的、角色直接调工具的，三种长相 */
+function cmdText(cmd){
+  if(!cmd) return '';
+  if(cmd.tool){
+    const a=cmd.args||{}, parts=[];
+    for(const k of ['val','sec','seq','step','device','seconds']) if(a[k]!==undefined && a[k]!=='' && a[k]!==0) parts.push(k+'='+(Array.isArray(a[k])?'['+a[k].join(',')+']':a[k]));
+    return cmd.tool+(parts.length?'  '+parts.join(' '):'');
+  }
+  if(cmd.ch!==undefined) return 'CH'+cmd.ch+' → '+cmd.val+(cmd.sec?' / '+cmd.sec+'s':'');
+  if(cmd.seq) return 'SEQ ['+cmd.seq.join(',')+']';
+  if(cmd.op) return 'OP '+cmd.op;
+  return '';
+}
+function feedHtml(list){
+  return list.map(e=>{
+    const cls = e.src==='面板' ? 'panel' : 'role';
+    const c = cmdText(e.cmd);
+    return '<div class="ev '+cls+'"><span class="t">'+e.t+' '+e.src+'</span>'
+      + (e.said?'<div class="said">'+esc(e.said.slice(0,120))+'</div>':'')
+      + (c?'<div class="cmd">'+esc(c)+'</div>':'')
+      + (e.out?'<div class="out">'+esc(String(e.out).slice(0,150))+'</div>':'')
+      + '</div>';
+  }).join('');
+}
+function pushEvents(list){
+  if(!list||!list.length) return;
+  const f=$('#feed'), atBottom = f.scrollHeight-f.scrollTop-f.clientHeight < 40;
+  f.insertAdjacentHTML('beforeend', feedHtml(list));
+  while(f.children.length>120) f.removeChild(f.firstChild);
+  if(atBottom) f.scrollTop=f.scrollHeight;
+}
+
+/* 状态灯 + 一句"哪里没通、该干嘛" */
+function paintStatus(s){
+  const link=s.link||{};
+  const relays=s.relays||{}, names=Object.keys(relays), upN=names.filter(n=>relays[n]).length;
+  const toy=(link.channels&&link.channels[0])||'';
+  $('#pBridge').classList.toggle('on', !!s.bridge_ok);
+  $('#pIntiface').classList.toggle('on', !!link.upstream_connected);
+  $('#pToy').classList.toggle('on', (link.channel_count||0)>0);
+  $('#toyName').textContent = toy ? toy.slice(0,14) : '玩具';
+  $('#pServer').classList.toggle('on', upN>0);
+  $('#pServer').title = names.length ? names.map(n=>n+(relays[n]?' ✓':' ✗')).join('\n') : '还没收到中继的消息';
+  let d;
+  if(!s.bridge_ok) d='桥没开：双击桌面 Start LINK';
+  else if(!link.upstream_connected) d='Intiface 没连上：打开它，点 Start Server';
+  else if(!(link.channel_count>0)) d='玩具没找到：Intiface 里点 Start Scanning';
+  else if(names.length && upN===0) d='服务器没连上：手机现在调不到';
+  else if(!names.length) d='中继没报到：手机可能调不到';
+  else d='一切就绪 ✓';
+  const el=$('#diag'); el.textContent=d; el.classList.toggle('ok', d.endsWith('✓'));
+}
+
+async function refresh(){
+  try{
+    const s=await api('/api/state?since='+SEQN);
+    if(!s.ok) return;
+    SEQN=Math.max(SEQN, s.max_seq||0);
+    bars=s.channels||{};
+    $('#chList').innerHTML=chHtml(bars);
+    $('#chCount').textContent=(s.link.channel_count??0)+' 路';
+    paintStatus(s);
+    $('#clock').textContent=s.now||'';
+    if(s.wake){ WAKE=s.wake; paintWake(); }
+    pushEvents(s.events);
+  }catch(e){}
+}
+
+function paintWake(){
+  $('#btnWake').textContent='保持唤醒：'+(WAKE.on?'开':'关');
+  $('#btnWake').classList.toggle('on', !!WAKE.on);
+  $('#lampWake').className='lamp'+(WAKE.on?' on':'');
+  let t=[];
+  t.push(WAKE.ok ? '系统✓' : '系统✗'+(WAKE.why?'('+WAKE.why+')':''));
+  t.push(FLAGS.video?'视频✓':'视频✗');
+  t.push(FLAGS.wakelock?'屏幕锁✓':'屏幕锁✗(需https)');
+  $('#wakeNote').textContent=t.join(' · ');
+}
+
+async function send(cmd){
+  try{
+    const r=await api('/api/send',{method:'POST',body:JSON.stringify(cmd)});
+    toast(r.ok ? '✓ '+(r.out||'ok') : '✗ '+(r.out||r.msg||'没执行'));
+    await refresh();
+  }catch(e){}
+}
+
+/* ── 防息屏：三招一起上 ── */
+let wakeLockSentinel=null;
+async function requestWakeLock(){
+  if(!('wakeLock' in navigator)){ FLAGS.wakelock=false; return; }
+  try{
+    wakeLockSentinel = await navigator.wakeLock.request('screen');
+    FLAGS.wakelock = true;
+    wakeLockSentinel.addEventListener('release', ()=>{ FLAGS.wakelock=false; });
+  }catch(e){ FLAGS.wakelock=false; }   // http 局域网不是安全上下文，拿不到
+}
+function startVideoLock(){
+  // 拿一个 canvas 流喂给隐藏的 video：浏览器会当成"正在放视频"，
+  // 于是它自己去压住系统睡眠和息屏。跟挂着个播放器看片是一回事。
+  try{
+    const c=document.createElement('canvas'); c.width=16; c.height=16;
+    const ctx=c.getContext('2d');
+    const tick=()=>{ ctx.fillStyle=(Math.random()>0.5?'#111':'#222'); ctx.fillRect(0,0,16,16); };
+    tick(); setInterval(tick,2000);
+    const v=document.createElement('video');
+    v.srcObject=c.captureStream(1); v.muted=true; v.loop=true; v.playsInline=true;
+    v.style.cssText='position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:.01;pointer-events:none;z-index:-1';
+    document.body.appendChild(v);
+    v.play().then(()=>{ FLAGS.video=true; paintWake(); }).catch(()=>{ FLAGS.video=false; paintWake(); });
+  }catch(e){ FLAGS.video=false; }
+}
+
+$('#btnWake').onclick = async ()=>{
+  try{
+    const r=await api('/api/wake?on='+(WAKE.on?0:1));
+    WAKE={on:r.on, ok:r.ok, why:r.why};
+    if(WAKE.on){ startVideoLock(); requestWakeLock(); } else { stopVideoLock(); }
+    paintWake();
+    toast(WAKE.on ? (r.ok?'电脑不会睡了':'系统没答应：'+r.why) : '恢复系统默认');
+  }catch(e){}
+};
+function stopVideoLock(){
+  document.querySelectorAll('video').forEach(v=>{ try{ v.pause(); v.srcObject=null; v.remove(); }catch(e){} });
+  FLAGS.video=false;
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && WAKE.on) requestWakeLock();
+});
+
+/* ── 按键 ── */
+document.querySelectorAll('#chPad .key').forEach(b=>{
+  b.onclick=()=>{ CH=+b.dataset.ch;
+    document.querySelectorAll('#chPad .key').forEach(x=>x.classList.toggle('on',+x.dataset.ch===CH));
+    $('#chList').innerHTML=chHtml(bars); };
+});
+$('#vUp').onclick   =()=>{ VAL=Math.min(100,VAL+5); $('#vVal').textContent=VAL; };
+$('#vDown').onclick =()=>{ VAL=Math.max(0,VAL-5);   $('#vVal').textContent=VAL; };
+$('#sUp').onclick   =()=>{ SEC=Math.min(600,SEC+1); $('#sVal').textContent=SEC; };
+$('#sDown').onclick =()=>{ SEC=Math.max(0,SEC-1);   $('#sVal').textContent=SEC; };
+document.querySelectorAll('.grid4 .key.sm').forEach(b=>{
+  b.onclick=()=>{ VAL=+b.dataset.v; $('#vVal').textContent=VAL; };
+});
+$('#btnSend').onclick  =()=> send({ch:CH, val:VAL, sec:SEC});
+$('#btnStop').onclick  =()=> send({op:'stop'});
+$('#btnScan').onclick  =async()=>{ try{ const r=await api('/api/scan?sec=8'); toast(r.out||'扫完'); await refresh(); }catch(e){} };
+$('#btnStatus').onclick=()=> send({op:'status'});
+$('#btnRefresh').onclick=()=> refresh();
+/* 钥匙：只有中介设了钥匙、而且这边不对时才露出来；一个人用、没设钥匙就一直藏着 */
+function showKeyStat(){
+  const row=$('#keyRow'), stat=$('#keyStat');
+  if(KEY_BAD){ row.style.display='block'; stat.style.display='flex'; $('#keyStateTxt').textContent='不对，重填'; document.querySelector('.more').open=true; }
+  else if(KEY){ stat.style.display='flex'; $('#keyStateTxt').textContent='已存 ✓'; row.style.display='none'; }
+  else { stat.style.display='none'; row.style.display='none'; }
+}
+$('#btnKey').onclick=()=>{
+  KEY=$('#keyIn').value.trim(); KEY_BAD=false;
+  const okWrite = lsSet('m8key',KEY);
+  showKeyStat();
+  toast(okWrite ? '存好了' : '存了（这个浏览器不让存本地，但这次能用）');
+  refresh();
+};
+/* 带钥匙的链接 + 二维码：给手机用，省得手打钥匙 */
+function buildKeyUrl(){
+  if(!KEY) return '';
+  return PAGE_BASE + '?k=' + encodeURIComponent(KEY);
+}
+function showQr(){
+  const u=buildKeyUrl();
+  if(!u){ $('#qrBox').style.display='none'; return; }
+  $('#qrBox').style.display='block';
+  $('#keyUrl').textContent=u;
+}
+$('#btnCopyUrl').onclick=async()=>{
+  const u=buildKeyUrl(); if(!u){ toast('先存钥匙'); return; }
+  try{ await navigator.clipboard.writeText(u); toast('复制好了'); }
+  catch(e){ const r=document.createRange(); r.selectNode($('#keyUrl')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('已选中，长按复制'); }
+};
+showKeyStat(); showQr();
+
+/* ── 起 ── */
+document.querySelector('#chPad .key').classList.add('on');
+refresh();
+setInterval(refresh, 4000);
+setInterval(()=>{ if(bars) $('#chList').innerHTML=chHtml(bars); }, 1000);
+if(!!window.EventSource){
+  const es=new EventSource('api/stream'+(KEY?'?key='+encodeURIComponent(KEY):''));
+  es.onmessage=ev=>{ try{ pushEvents([JSON.parse(ev.data)]); refresh(); }catch(e){} };
+  es.onerror=()=>{};
+}
+</script>
+</body>
+</html>

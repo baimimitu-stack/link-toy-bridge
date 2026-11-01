@@ -1,0 +1,20 @@
+[Unit]
+Description=LINK MCP (server side)
+After=network.target
+
+[Service]
+# 用一个专用的低权限用户跑，不要用 root
+User=linkmcp
+Group=linkmcp
+EnvironmentFile=/etc/link-mcp.env
+WorkingDirectory=/opt/link-mcp
+ExecStart=/opt/link-mcp/venv/bin/python linkmcp.py
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

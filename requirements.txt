@@ -1,0 +1,7 @@
+# 电脑端（桥、中介、中继）用的依赖，下面是实测可用的版本
+mcp==2.3.0
+buttplug==1.0.0
+python-dotenv>=1.0
+uvicorn>=0.30
+starlette>=0.40
+websockets>=13

@@ -1,0 +1,14 @@
+# 密钥和本机状态：绝不提交
+.env
+*.env
+logs/
+*.log
+calls.log
+quit.flag
+app-profile/
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.bak
+手机填写.txt

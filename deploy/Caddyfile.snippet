@@ -1,0 +1,5 @@
+# 加进你已有的站点块里（先备份 Caddyfile，caddy validate 通过再 reload）。
+# handle_path 会把 /link 前缀去掉再转给后面，WebSocket 自动支持。
+    handle_path /link/* {
+        reverse_proxy 127.0.0.1:8802
+    }

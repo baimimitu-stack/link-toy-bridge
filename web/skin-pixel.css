@@ -1,0 +1,124 @@
+/* 外观一：黄色像素掌机
+   芥末黄塑料壳 + 琥珀 LCD + 扫描线 + 硬边按键。
+   值条改成真色块（原来用 █░ 字符，手机上糊成一团）。 */
+
+:root{
+  --shell:#dcbb1c; --shell-hi:#f6e489; --shell-lo:#9a7d05; --shell-deep:#6d5703;
+  --ink:#241d06; --ink-soft:#5a4a12;
+  --scr:#c6b256; --scr-hi:#dccb74; --scr-ink:#2b2205; --scr-dim:#7d6c2a;
+  --cell-off:#a89340; --cell-on:#2b2205;
+  --btn:#4c4634; --btn-ink:#f4e8b0; --btn-lo:#241f12;
+  --go:#3f6b34; --go-lo:#24401d;
+  --stop:#a8332a; --stop-lo:#631a15;
+  --wake:#b07d1a; --wake-lo:#6d4c07;
+  --edge:3px; --rad:0;
+  --f: "Press Start 2P","DotGothic16","Zpix",Consolas,"Courier New",monospace;
+  --fs-key:14px; --fs-lbl:12px; --fs-val:26px; --fs-feed:13px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:#131109;color:var(--ink);font-family:var(--f);
+  display:flex;justify-content:center;padding:14px 10px 30px;letter-spacing:.4px;
+  background-image:radial-gradient(circle at 50% 0%,#26220f 0%,#131109 70%);
+}
+.unit{
+  width:100%;max-width:480px;background:var(--shell);padding:14px;
+  border:4px solid var(--ink);position:relative;
+  box-shadow:0 0 0 4px var(--shell-lo),0 10px 0 0 var(--shell-deep),0 18px 34px rgba(0,0,0,.6);
+}
+.unit::before,.unit::after{content:"";position:absolute;top:8px;width:8px;height:8px;
+  background:var(--shell-deep);border:2px solid var(--ink);border-radius:50%}
+.unit::before{left:8px} .unit::after{right:8px}
+
+/* 眉条 */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 6px 10px}
+.brand{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.mark{font-size:17px;color:var(--ink)}
+.t1{font-size:15px;font-weight:bold;letter-spacing:2px}
+.t2{font-size:10px;color:var(--ink-soft);letter-spacing:1px}
+.lamps{display:flex;align-items:center;gap:7px}
+.lamp{width:12px;height:12px;border:2px solid var(--ink);background:var(--scr-dim);display:inline-block}
+.lamp.on{background:var(--stop);box-shadow:0 0 8px rgba(168,51,42,.9)}
+.skinbtn{font:inherit;font-size:11px;background:var(--shell-hi);color:var(--ink);
+  border:3px solid var(--ink);padding:5px 8px;cursor:pointer;box-shadow:0 3px 0 0 var(--shell-lo)}
+.skinbtn:active{transform:translateY(3px);box-shadow:none}
+
+/* 屏幕 */
+.screenbox{background:var(--ink);padding:10px;border:3px solid var(--ink);
+  box-shadow:inset 0 0 0 2px var(--shell-deep)}
+.screen{background:var(--scr);position:relative;overflow:hidden;padding:11px;min-height:290px;
+  box-shadow:inset 0 0 20px rgba(90,74,10,.5)}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0 2px,transparent 2px 4px)}
+.srow.head{display:flex;justify-content:space-between;font-size:var(--fs-lbl);
+  color:var(--scr-ink);margin-bottom:6px;border-bottom:2px solid var(--scr-dim);padding-bottom:4px}
+.srow.head+*{} #chList{margin-bottom:9px}
+
+/* 通道条：真色块 */
+.chrow{display:flex;align-items:center;gap:7px;margin-bottom:5px;padding:1px 2px}
+.chrow.sel{background:var(--scr-hi);outline:2px solid var(--scr-ink)}
+.chname{font-size:var(--fs-lbl);width:34px;flex:none;color:var(--scr-ink)}
+.cells{flex:1;display:flex;gap:2px;height:15px}
+.cell{flex:1;background:var(--cell-off);border:1px solid rgba(43,34,5,.35)}
+.cell.on{background:var(--cell-on)}
+.chval{font-size:var(--fs-lbl);width:62px;text-align:right;flex:none;color:var(--scr-ink)}
+.chval em{font-style:normal;color:var(--scr-dim);font-size:10px;margin-left:3px}
+
+/* 事件流 */
+#feed{height:150px;overflow-y:auto;font-size:var(--fs-feed);line-height:1.55;padding-right:2px}
+#feed::-webkit-scrollbar{width:6px}
+#feed::-webkit-scrollbar-thumb{background:var(--scr-dim)}
+.ev{margin-bottom:6px;padding-left:7px;border-left:3px solid var(--scr-dim);word-break:break-word}
+.ev.role{border-left-color:var(--stop)}
+.ev.panel{border-left-color:var(--go)}
+.ev .t{color:var(--scr-dim);font-size:10.5px}
+.ev .said{color:var(--scr-ink)}
+.ev .cmd{font-weight:bold;color:var(--scr-ink)}
+.ev .out{color:var(--scr-dim);font-size:11.5px}
+
+/* 按键 */
+.pad{margin-top:13px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.key{font:inherit;font-size:var(--fs-key);color:var(--btn-ink);background:var(--btn);
+  border:var(--edge) solid var(--ink);padding:12px 4px;cursor:pointer;user-select:none;
+  box-shadow:0 5px 0 0 var(--btn-lo);line-height:1.3}
+.key:active{transform:translateY(5px);box-shadow:none}
+.key.on{background:var(--stop);box-shadow:0 5px 0 0 var(--stop-lo)}
+.key.go{background:var(--go);box-shadow:0 5px 0 0 var(--go-lo)}
+.key.stop{background:var(--stop);box-shadow:0 5px 0 0 var(--stop-lo)}
+.key.wake{background:var(--wake);box-shadow:0 5px 0 0 var(--wake-lo)}
+.key.wake.on{background:var(--go);box-shadow:0 5px 0 0 var(--go-lo)}
+.key.sm{padding:10px 2px;font-size:13px}
+
+.slab{margin-top:9px;background:var(--shell-hi);border:var(--edge) solid var(--ink);
+  padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  box-shadow:0 4px 0 0 var(--shell-lo)}
+.slabmid{text-align:center;flex:1}
+.slablbl{display:block;font-size:11px;color:var(--ink-soft)}
+.slablbl em{font-style:normal;color:var(--shell-lo)}
+.slabval{display:block;font-size:var(--fs-val);font-weight:bold;line-height:1.2}
+.step{font:inherit;font-size:20px;background:var(--btn);color:var(--btn-ink);
+  border:var(--edge) solid var(--ink);width:46px;height:42px;cursor:pointer;
+  box-shadow:0 4px 0 0 var(--btn-lo);line-height:1}
+.step:active{transform:translateY(4px);box-shadow:none}
+
+.wakenote{margin-top:6px;font-size:11px;color:var(--ink-soft);text-align:center}
+
+/* 页脚 */
+.foot{margin-top:13px;font-size:11px;color:var(--ink-soft);line-height:1.9;
+  border-top:2px dashed var(--shell-lo);padding-top:9px}
+.footrow{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.foot code{background:var(--shell-hi);padding:1px 5px;border:1px solid var(--ink-soft);font-family:inherit}
+input[type=text]{font:inherit;font-size:12px;background:var(--shell-hi);color:var(--ink);
+  border:var(--edge) solid var(--ink);padding:8px;width:100%;margin-top:6px}
+
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+  background:var(--ink);color:var(--shell-hi);border:3px solid var(--shell-lo);
+  padding:10px 15px;font-size:12px;z-index:99;display:none;max-width:92%}
+
+@media (max-width:360px){
+  .key{font-size:12px;padding:11px 2px}
+  .chname{width:30px} .chval{width:56px;font-size:11px}
+}
