@@ -386,6 +386,9 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST https://你的域名/link/mcp \
 
 ## 许可与说明
 
-- 本仓库的代码目前**没有指定许可证**；公开发布前请自己选一个（MIT / Apache-2.0 等）。
+- **许可：个人使用，禁止再分发**（见根目录 [LICENSE](LICENSE)）。你可以自己用、自己改；
+  不可以把它（原版或修改版）再发给别人、传到任何地方、商用或冒用。这**不是**开源许可证（不是 MIT）。
+  GitHub 的 fork 只用于查看和提交修改建议。想做许可里禁止的事，先到 Issues 联系作者。
+- **只能用在知情、同意的成年人身上**，并且要保证对方随时能停下（第 10 节）。
 - 依赖：[Intiface Central / Buttplug](https://intiface.com/)、`mcp` Python SDK、Starlette、Uvicorn、websockets，各自有各自的许可。
 - 这是个人自用工具的整理版，不提供任何担保。使用风险自负，尤其是第 10 节。

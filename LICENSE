@@ -1,0 +1,55 @@
+LINK 个人使用许可（Personal Use Only License）
+
+Copyright (c) 2026 baimimitu-stack. 保留所有未明确授予的权利。
+
+English summary (the Chinese text below is the controlling version):
+You may use this software yourself, for non-commercial purposes, and modify it for your own use.
+You may NOT redistribute it (original or modified, free or paid), publish it anywhere,
+use it commercially, or present it as your own. Use it only on people who are informed adults and consent.
+Provided "as is", with no warranty.
+
+────────────────────────────────────────
+
+一、你可以做的
+
+1. 在你自己的设备上安装、运行、使用本软件，仅限个人、非商业用途。
+2. 在本地修改本软件，供你自己使用。
+3. 为个人备份复制本软件。
+
+二、你不可以做的
+
+1. 再分发：不得以任何形式把本软件的全部或部分（包括原版、你修改后的版本、单独的某些文件或代码片段）
+   提供给他人，不论免费还是收费，不论通过代码托管网站、网盘、压缩包、镜像、聊天、论坛还是别的方式。
+2. 公开：不得把本软件或其修改版上传、发布、托管到任何公开或可被他人获取的地方。
+   GitHub 自带的 fork 功能只用于查看和向本仓库提交修改建议，不构成再分发的许可。
+3. 商用：不得把本软件用于商业目的，包括收费使用、收费部署、提供付费服务、
+   或者把它放进任何商业产品或服务里。
+4. 冒用：不得声称本软件或其修改版是你的原创作品，不得使用作者的名义为你的版本背书。
+5. 删除或修改本文件，或者删除软件里的版权和署名声明。
+
+三、使用者的责任
+
+1. 本软件用于远程控制可连接的设备，涉及人身。你只能把它用在**知情、同意、并且是成年人**的人身上，
+   并且要保证对方随时能够停下（比如直接关闭设备）。
+2. 你要自己负责设置合理的强度上限，并先从很低的强度开始试。
+3. 你要妥善保管密钥，不泄露给他人。因密钥泄露造成的后果由你自己承担。
+
+四、免责声明
+
+本软件按「现状」提供，不附带任何形式的明示或暗示担保，包括但不限于适销性、
+适用于特定目的和不侵权的担保。作者不对因使用或无法使用本软件产生的任何索赔、
+损害或其他责任负责，不论是合同、侵权还是其他原因。
+
+五、终止
+
+你违反上面任何一条，本许可立即自动终止，你必须停止使用并删除本软件的所有副本。
+
+六、第三方组件
+
+本软件依赖的第三方库（例如 Intiface/Buttplug、mcp SDK、Starlette、Uvicorn、websockets）
+各自适用它们自己的许可，本许可不改变它们的条款。
+
+七、想要更多权限
+
+如果你想做上面「不可以」里的事（比如转载、商用、集成进别的项目），
+请先通过本仓库的 Issues 联系作者并取得书面同意。
