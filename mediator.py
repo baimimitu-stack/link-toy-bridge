@@ -661,10 +661,15 @@ def main() -> None:
         print(f"[!] 桥还没连上（{e}）。它起来了会自动连，不影响启动。")
     if not UPSTREAM:
         print("[!] 没配 UPSTREAM_*：现在只能执行直接发来的数据串，不会去找模型。")
-    print(f"中介在听：http://0.0.0.0:{PORT}")
-    print(f"  面板（手机浏览器也能开）：http://电脑IP:{PORT}/")
-    print(f"  小手机接口填：http://电脑IP:{PORT}/v1")
-    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="info")
+    host = os.getenv("MEDIATOR_HOST", "127.0.0.1").strip() or "127.0.0.1"
+    print(f"中介在听：http://{host}:{PORT}")
+    if host == "127.0.0.1":
+        print(f"  面板只有本机能开：http://127.0.0.1:{PORT}/")
+    else:
+        print(f"  面板（同网设备也能开）：http://电脑IP:{PORT}/")
+        if not MEDIATOR_TOKEN:
+            print("[!] 你把监听地址开放了，但没设 MEDIATOR_TOKEN：同网任何设备都能控制设备，请先设钥匙。")
+    uvicorn.run(app, host=host, port=PORT, log_level="info")
 
 
 if __name__ == "__main__":

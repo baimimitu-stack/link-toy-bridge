@@ -1,0 +1,20 @@
+[Unit]
+Description=LINK MCP (server side) for customer %i
+After=network.target
+
+[Service]
+# 模板服务：一个客户一个实例，link-mcp@客户名。各自读 /etc/link-mcp/客户名.env，互不相通。
+User=linkmcp
+Group=linkmcp
+EnvironmentFile=/etc/link-mcp/%i.env
+WorkingDirectory=/opt/link-mcp
+ExecStart=/opt/link-mcp/venv/bin/python linkmcp.py
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

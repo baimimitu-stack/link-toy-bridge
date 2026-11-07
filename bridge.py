@@ -14,7 +14,7 @@ Intiface ⇄ MCP 桥。
 
 环境变量（也可写在同目录 .env）：
   INTIFACE_URL   上游地址，默认 ws://127.0.0.1:12345
-  BRIDGE_HOST    监听地址，默认 0.0.0.0（让手机能连）
+  BRIDGE_HOST    监听地址，默认 127.0.0.1（只给本机用；要让局域网设备连才改成 0.0.0.0，且必须设 BRIDGE_TOKEN）
   BRIDGE_PORT    端口，默认 8791
   BRIDGE_TOKEN   钥匙；留空则不校验（同网可信时才这么做）
   MAX_STRENGTH   输出上限 0-100，默认 100
@@ -58,7 +58,7 @@ from starlette.responses import JSONResponse
 load_dotenv()
 
 INTIFACE_URL = os.getenv("INTIFACE_URL", "ws://127.0.0.1:12345")
-HOST = os.getenv("BRIDGE_HOST", "0.0.0.0")
+HOST = os.getenv("BRIDGE_HOST", "127.0.0.1")
 PORT = int(os.getenv("BRIDGE_PORT", "8791"))
 TOKEN = os.getenv("BRIDGE_TOKEN", "").strip()
 MAX_STRENGTH = float(os.getenv("MAX_STRENGTH", "100"))

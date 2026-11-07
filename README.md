@@ -285,10 +285,11 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST https://你的域名/link/mcp \
 | 变量 | 默认 | 说明 |
 |---|---|---|
 | `INTIFACE_URL` | `ws://127.0.0.1:12345` | Intiface 的地址 |
-| `BRIDGE_HOST` / `BRIDGE_PORT` | `0.0.0.0` / `8791` | 本机桥监听。**建议 `127.0.0.1`**，它只给本机中继调 |
+| `BRIDGE_HOST` / `BRIDGE_PORT` | `127.0.0.1` / `8791` | 本机桥监听。默认只听本机，它只给本机中继调 |
 | `BRIDGE_TOKEN` | — | 本机桥的钥匙；本机（127.0.0.1）来的请求不查，从别处来的必须带 |
 | `MAX_STRENGTH` | `100` | 输出上限 |
 | `MEDIATOR_PORT` / `MEDIATOR_TOKEN` | `8800` / 空 | 面板；不设钥匙就是本机免鉴权 |
+| `MEDIATOR_HOST` | `127.0.0.1` | 面板监听地址；默认只有本机能开，改成 `0.0.0.0` 前务必先设 `MEDIATOR_TOKEN` |
 | `LINK_SERVERS` | — | 服务器中继地址，可多个，逗号隔开 |
 | `LINK_RELAY_TOKEN` | — | 进服务器的暗号 |
 | `LINK_PY` / `LINK_INTIFACE` | 自动找 | 启动脚本找不到时才写 |
